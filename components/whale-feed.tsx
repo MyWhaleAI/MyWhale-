@@ -1,126 +1,228 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { DollarSign, ArrowUpRight, ArrowDownRight, Wallet, Star, Zap, Share2 } from "lucide-react"
+"use client";
 
-// Mock data for whale transactions
-const transactions = [
-  {
-    id: 1,
-    whaleId: "Whale-10x4a...3f7b",
-    action: "buy",
-    token: "ETH",
-    amount: "1,250",
-    price: "$3,245",
-    timeAgo: "2 min ago",
-    analysis:
-      "Likely accumulating before ETH staking rewards increase next week. This whale has historically bought before major protocol upgrades.",
-  },
-  {
-    id: 2,
-    whaleId: "Whale-20x8c...9d2e",
-    action: "stake",
-    token: "SOL",
-    amount: "45,000",
-    price: "$98",
-    timeAgo: "15 min ago",
-    analysis:
-      "This whale is moving assets to staking, suggesting a long-term bullish outlook on SOL. They've maintained this position through previous market downturns.",
-  },
-  {
-    id: 3,
-    whaleId: "Whale-30x1f...7a4c",
-    action: "sell",
-    token: "AVAX",
-    amount: "12,500",
-    price: "$28",
-    timeAgo: "32 min ago",
-    analysis:
-      "This appears to be profit-taking after the recent 30% price increase. The whale still holds a significant position in AVAX.",
-  },
-  {
-    id: 4,
-    whaleId: "Whale-40x5d...2e8f",
-    action: "farm",
-    token: "AAVE/ETH LP",
-    amount: "$2.1M",
-    price: "-",
-    timeAgo: "45 min ago",
-    analysis:
-      "Moving liquidity to a new yield farming opportunity. This whale frequently rotates between DeFi protocols to maximize yields.",
-  },
-  {
-    id: 5,
-    whaleId: "Whale-50x9b...6c3a",
-    action: "buy",
-    token: "BTC",
-    amount: "32",
-    price: "$61,245",
-    timeAgo: "1 hour ago",
-    analysis:
-      "Consistent accumulation pattern. This whale has been dollar-cost averaging into BTC for the past 6 months regardless of price action.",
-  },
-]
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Bookmark, Share2, Bell, ExternalLink, Info } from "lucide-react";
+import { getFollowedWhalesActivity } from "@/actions/activity-actions";
+import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@solana/wallet-adapter-react";
+import Link from "next/link";
 
 export function WhaleFeed() {
+  const [feedItems, setFeedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasSampleData, setHasSampleData] = useState(false);
+  const { toast } = useToast();
+  const { publicKey } = useWallet();
+
+  useEffect(() => {
+    async function loadActivity() {
+      if (!publicKey) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const activity = await getFollowedWhalesActivity(publicKey.toString());
+        setFeedItems(activity);
+
+        // Check if we're showing sample data
+        setHasSampleData(activity.some((item) => item.isSample));
+      } catch (error) {
+        console.error("Error loading whale activity:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load whale activity",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadActivity();
+  }, [publicKey, toast]);
+
+  if (isLoading) {
+    return <FeedSkeleton />;
+  }
+
+  if (!publicKey) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-500 mb-4">Connect your wallet to see activity from whales you follow</p>
+      </div>
+    );
+  }
+
+  if (feedItems.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-500 mb-4">You're not following any whales yet, or your whales haven't had any recent activity</p>
+        <Button className="bg-teal-500 hover:bg-teal-600 text-white" asChild>
+          <Link href="/whales">Discover Whales to Follow</Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <Card className="bg-gray-800 border-gray-700">
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {transactions.map((tx) => (
-            <div key={tx.id} className="border border-gray-700 rounded-lg p-4 hover:bg-gray-750 transition-colors">
-              <div className="flex justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-emerald-500">{tx.whaleId}</span>
-                  <Button variant="ghost" size="icon" className="h-5 w-5 text-gray-400 hover:text-yellow-500">
-                    <Star className="h-4 w-4" />
-                  </Button>
-                </div>
-                <span className="text-xs text-gray-500">{tx.timeAgo}</span>
-              </div>
+    <div className="overflow-x-auto">
+      {hasSampleData && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 m-4 rounded">
+          <div className="flex items-start">
+            <Info className="h-5 w-5 text-amber-400 mr-2 mt-0.5" />
+            <div>
+              <p className="text-sm text-amber-800">
+                <strong>Demo Mode:</strong> Showing sample transactions since you don't have any activity from followed whales yet.
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                Follow some whales on the{" "}
+                <Link href="/whales" className="underline">
+                  Whales page
+                </Link>{" "}
+                to see their real activity.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <div className="flex items-center gap-2 mb-3">
-                {tx.action === "buy" && (
-                  <Badge className="bg-emerald-500/20 text-emerald-500">
-                    <ArrowUpRight className="h-3 w-3 mr-1" /> Buy
-                  </Badge>
-                )}
-                {tx.action === "sell" && (
-                  <Badge className="bg-red-500/20 text-red-500">
-                    <ArrowDownRight className="h-3 w-3 mr-1" /> Sell
-                  </Badge>
-                )}
-                {tx.action === "stake" && (
-                  <Badge className="bg-blue-500/20 text-blue-500">
-                    <Wallet className="h-3 w-3 mr-1" /> Stake
-                  </Badge>
-                )}
-                {tx.action === "farm" && (
-                  <Badge className="bg-purple-500/20 text-purple-500">
-                    <DollarSign className="h-3 w-3 mr-1" /> Farm
-                  </Badge>
-                )}
-
-                <span className="font-medium">
-                  {tx.amount} {tx.token} {tx.price !== "-" && `at ${tx.price}`}
-                </span>
-              </div>
-
-              <div className="text-sm text-gray-400 border-t border-gray-700 pt-3 mt-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Zap className="h-4 w-4 text-emerald-400 mr-2" />
-                    <span>{tx.analysis}</span>
+      {/* Desktop Table View */}
+      <div className="hidden md:block">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left p-3 text-teal-600 font-medium text-sm">Whale</th>
+              <th className="text-left p-3 text-teal-600 font-medium text-sm">Action</th>
+              <th className="text-left p-3 text-teal-600 font-medium text-sm">Token</th>
+              <th className="text-left p-3 text-teal-600 font-medium text-sm">Platform</th>
+              <th className="text-left p-3 text-teal-600 font-medium text-sm">Time</th>
+              <th className="text-left p-3 text-teal-600 font-medium text-sm">AI Insight</th>
+              <th className="text-right p-3 text-teal-600 font-medium text-sm">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {feedItems.map((item) => (
+              <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer group">
+                <td className="p-3">
+                  <div className="flex items-center gap-2">
+                    {item.avatarUrl ? (
+                      <img src={item.avatarUrl || "/placeholder.svg"} alt={item.whale} className="w-8 h-8 rounded-lg object-cover" />
+                    ) : (
+                      <div className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-xs font-bold text-white`}>{item.avatar}</div>
+                    )}
+                    <Link href={`/whale/${item.whaleAddress}`} className="text-gray-800 font-medium text-sm hover:text-teal-600">
+                      {item.whale}
+                    </Link>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-300">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
+                </td>
+                <td className="p-3 font-medium text-gray-800 text-sm">{item.action}</td>
+                <td className="p-3 font-medium text-gray-800 text-sm">{item.token}</td>
+                <td className="p-3 text-gray-600 text-sm">{item.platform}</td>
+                <td className="p-3 text-gray-500 text-xs">{item.time}</td>
+                <td className="p-3 text-gray-600 max-w-[300px] text-sm">"{item.insight}"</td>
+                <td className="p-3 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" title="Bookmark">
+                      <Bookmark className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" title="Set Alert">
+                      <Bell className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" title="Share">
+                      <Share2 className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="View Transaction"
+                      onClick={() => window.open(`https://solscan.io/tx/${item.signature}`, "_blank")}>
+                      <ExternalLink className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3 p-3">
+        {feedItems.map((item) => (
+          <div key={item.id} className="border border-gray-200 rounded-xl p-3 bg-white hover:bg-gray-50">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center gap-2">
+                {item.avatarUrl ? (
+                  <img src={item.avatarUrl || "/placeholder.svg"} alt={item.whale} className="w-8 h-8 rounded-lg object-cover" />
+                ) : (
+                  <div className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-xs font-bold text-white`}>{item.avatar}</div>
+                )}
+                <div>
+                  <Link href={`/whale/${item.whaleAddress}`} className="text-gray-800 font-medium text-sm hover:text-teal-600">
+                    {item.whale}
+                  </Link>
+                  <div className="text-gray-500 text-xs">{item.time}</div>
                 </div>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => window.open(`https://solscan.io/tx/${item.signature}`, "_blank")}>
+                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
+              </Button>
+            </div>
+
+            <div className="mb-2">
+              <div className="font-medium text-gray-800 text-sm">{item.action}</div>
+              <div className="flex items-center gap-1 text-sm">
+                <span className="text-gray-800">{item.token}</span>
+                {item.platform && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <span className="text-gray-600">{item.platform}</span>
+                  </>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
+
+            <div className="text-gray-600 text-xs border-t border-gray-100 pt-2">
+              <span className="font-medium text-teal-600">AI:</span> {item.insight}
+            </div>
+
+            <div className="flex justify-end gap-1 mt-2">
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
+                <Bookmark className="h-3.5 w-3.5 text-gray-400" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
+                <Bell className="h-3.5 w-3.5 text-gray-400" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
+                <Share2 className="h-3.5 w-3.5 text-gray-400" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeedSkeleton() {
+  return (
+    <div className="p-4">
+      <div className="animate-pulse">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center space-x-4 py-3 border-b border-gray-200">
+            <div className="rounded-lg bg-gray-200 h-10 w-10"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
