@@ -1,76 +1,94 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import Link from "next/link";
-import { Users, DollarSign, TrendingUp, Tag, Eye, EyeOff, MessageSquare, ExternalLink, Edit, Twitter, MessageCircle, HelpCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { truncateAddress } from "@/lib/utils";
-import { PerformanceChart } from "@/components/dashboard/performance-chart";
-import { TopBar } from "@/components/top-bar";
-import { useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { toast } from "sonner";
-import { updateWhaleProfile, type WhaleProfileUpdateData } from "@/actions/profile-actions";
+import { useState } from "react"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import Link from "next/link"
+import {
+  Users,
+  DollarSign,
+  TrendingUp,
+  Tag,
+  Eye,
+  EyeOff,
+  MessageSquare,
+  ExternalLink,
+  Edit,
+  Twitter,
+  MessageCircle,
+  HelpCircle,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { truncateAddress } from "@/lib/utils"
+import { PerformanceChart } from "@/components/dashboard/performance-chart"
+import { TopBar } from "@/components/top-bar"
+import { useEffect } from "react"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { toast } from "sonner"
+import { updateWhaleProfile, type WhaleProfileUpdateData } from "@/app/actions/profile-actions"
 
 export default function WhaleDashboard() {
-  const { publicKey, connected } = useWallet();
-  const { setVisible } = useWalletModal();
-  const [monetizationModel, setMonetizationModel] = useState("free");
-  const [whaleData, setWhaleData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isWhale, setIsWhale] = useState(false);
+  const { publicKey, connected } = useWallet()
+  const { setVisible } = useWalletModal()
+  const [monetizationModel, setMonetizationModel] = useState("free")
+  const [whaleData, setWhaleData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isWhale, setIsWhale] = useState(false)
   const [formData, setFormData] = useState<WhaleProfileUpdateData>({
     displayName: whaleData?.display_name || "",
     bio: whaleData?.bio || "",
     twitter: whaleData?.twitter || "",
     telegram: whaleData?.telegram || "",
-  });
+  })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
+    const { id, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [id]: value,
-    }));
-  };
+    }))
+  }
 
   // Fetch whale data when wallet connects
   useEffect(() => {
     async function fetchWhaleData() {
       if (!publicKey) {
-        setIsLoading(false);
-        return;
+        setIsLoading(false)
+        return
       }
 
       try {
-        const supabase = createClientComponentClient();
-        const walletAddress = publicKey.toString();
+        const supabase = createClientComponentClient()
+        const walletAddress = publicKey.toString()
 
         // Check if user is an approved whale
-        const { data, error } = await supabase.from("whale_applications").select("*").eq("wallet_address", walletAddress).eq("status", "approved").single();
+        const { data, error } = await supabase
+          .from("whale_applications")
+          .select("*")
+          .eq("wallet_address", walletAddress)
+          .eq("status", "approved")
+          .single()
 
         if (error) {
-          console.error("Error fetching whale data:", error);
-          setIsLoading(false);
-          setIsWhale(false);
-          return;
+          console.error("Error fetching whale data:", error)
+          setIsLoading(false)
+          setIsWhale(false)
+          return
         }
 
-        setWhaleData(data);
-        setIsWhale(true);
-        setIsLoading(false);
+        setWhaleData(data)
+        setIsWhale(true)
+        setIsLoading(false)
 
         // Set form data
         setFormData({
@@ -78,21 +96,21 @@ export default function WhaleDashboard() {
           bio: data.bio || "",
           twitter: data.twitter || "",
           telegram: data.telegram || "",
-        });
+        })
 
         // Set monetization model if available
         if (data.monetization_model) {
-          setMonetizationModel(data.monetization_model);
+          setMonetizationModel(data.monetization_model)
         }
       } catch (err) {
-        console.error("Failed to fetch whale data:", err);
-        setIsLoading(false);
-        setIsWhale(false);
+        console.error("Failed to fetch whale data:", err)
+        setIsLoading(false)
+        setIsWhale(false)
       }
     }
 
-    fetchWhaleData();
-  }, [publicKey]);
+    fetchWhaleData()
+  }, [publicKey])
 
   // Mock data for the feed
   const feedItems = [
@@ -123,7 +141,7 @@ export default function WhaleDashboard() {
       aiSummary: "Participating in hyped mint",
       hidden: false,
     },
-  ];
+  ]
 
   // If not connected, show connect wallet prompt
   if (!connected) {
@@ -140,14 +158,19 @@ export default function WhaleDashboard() {
               <Users className="h-8 w-8 text-teal-600" />
             </div>
             <h2 className="text-xl font-bold text-gray-800 mb-2">Whale Access Only</h2>
-            <p className="text-gray-600 mb-6">This dashboard is only accessible to verified whales. Please connect your wallet to continue.</p>
-            <Button onClick={() => setVisible(true)} className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white flex items-center gap-2 mx-auto">
+            <p className="text-gray-600 mb-6">
+              This dashboard is only accessible to verified whales. Please connect your wallet to continue.
+            </p>
+            <Button
+              onClick={() => setVisible(true)}
+              className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white flex items-center gap-2 mx-auto"
+            >
               Connect Wallet
             </Button>
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   // If loading, show loading state
@@ -165,7 +188,7 @@ export default function WhaleDashboard() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   // If not a whale, show not authorized message
@@ -183,9 +206,15 @@ export default function WhaleDashboard() {
               <Users className="h-8 w-8 text-red-600" />
             </div>
             <h2 className="text-xl font-bold text-gray-800 mb-2">Not Authorized</h2>
-            <p className="text-gray-600 mb-6">Your wallet is not registered as an approved whale. Please apply to become a whale or use the regular dashboard.</p>
+            <p className="text-gray-600 mb-6">
+              Your wallet is not registered as an approved whale. Please apply to become a whale or use the regular
+              dashboard.
+            </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={() => (window.location.href = "/apply")} className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white">
+              <Button
+                onClick={() => (window.location.href = "/apply")}
+                className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white"
+              >
                 Apply to Become a Whale
               </Button>
               <Button variant="outline" onClick={() => (window.location.href = "/dashboard")}>
@@ -195,14 +224,14 @@ export default function WhaleDashboard() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   // Save profile changes
   const saveProfileChanges = async () => {
     if (!publicKey) {
-      toast.error("Wallet not connected");
-      return;
+      toast.error("Wallet not connected")
+      return
     }
 
     try {
@@ -210,20 +239,20 @@ export default function WhaleDashboard() {
       const profileData = {
         ...formData,
         monetizationModel,
-      };
+      }
 
-      const result = await updateWhaleProfile(publicKey.toString(), profileData);
+      const result = await updateWhaleProfile(publicKey.toString(), profileData)
 
       if (result.success) {
-        toast.success("Profile changes saved successfully!");
+        toast.success("Profile changes saved successfully!")
       } else {
-        throw new Error(result.error || "Failed to save profile");
+        throw new Error(result.error || "Failed to save profile")
       }
     } catch (error) {
-      console.error("Error saving profile:", error);
-      toast.error(error instanceof Error ? error.message : "An unknown error occurred");
+      console.error("Error saving profile:", error)
+      toast.error(error instanceof Error ? error.message : "An unknown error occurred")
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -302,7 +331,9 @@ export default function WhaleDashboard() {
                 )) || (
                   <>
                     <span className="bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full text-xs font-medium">DeFi</span>
-                    <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-medium">NFT</span>
+                    <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                      NFT
+                    </span>
                   </>
                 )}
               </div>
@@ -330,7 +361,10 @@ export default function WhaleDashboard() {
 
               <div className="divide-y divide-gray-100">
                 {feedItems.map((item) => (
-                  <div key={item.id} className={`p-4 transition-colors hover:bg-gray-50 ${item.hidden ? "opacity-50" : ""}`}>
+                  <div
+                    key={item.id}
+                    className={`p-4 transition-colors hover:bg-gray-50 ${item.hidden ? "opacity-50" : ""}`}
+                  >
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-xs font-bold text-white">
@@ -390,7 +424,11 @@ export default function WhaleDashboard() {
                   <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg">
                     7d
                   </Button>
-                  <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg bg-teal-50 border-teal-200 text-teal-700">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs rounded-lg bg-teal-50 border-teal-200 text-teal-700"
+                  >
                     30d
                   </Button>
                   <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg">
@@ -446,7 +484,9 @@ export default function WhaleDashboard() {
                       Edit
                     </Button>
                   </div>
-                  <div className="p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 text-sm">{truncateAddress(publicKey?.toString() || "", 8, 8)}</div>
+                  <div className="p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 text-sm">
+                    {truncateAddress(publicKey?.toString() || "", 8, 8)}
+                  </div>
                 </div>
 
                 <div className="mb-6">
@@ -523,7 +563,9 @@ export default function WhaleDashboard() {
 
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-700 text-sm">
                   <p className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 flex-shrink-0 mt-0.5">🛡️</span>
+                    <span className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 flex-shrink-0 mt-0.5">
+                      🛡️
+                    </span>
                     Only public blockchain data is ever used. We never post private messages or off-chain behavior.
                   </p>
                 </div>
@@ -544,14 +586,24 @@ export default function WhaleDashboard() {
                   <Label htmlFor="displayName" className="text-gray-700 font-medium">
                     Display Name / Alias
                   </Label>
-                  <Input id="displayName" value={formData.displayName} onChange={handleInputChange} className="mt-1.5 border-gray-300 focus:border-teal-500 focus:ring-teal-500" />
+                  <Input
+                    id="displayName"
+                    value={formData.displayName}
+                    onChange={handleInputChange}
+                    className="mt-1.5 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                  />
                 </div>
 
                 <div>
                   <Label htmlFor="bio" className="text-gray-700 font-medium">
                     Bio
                   </Label>
-                  <Textarea id="bio" value={formData.bio} onChange={handleInputChange} className="mt-1.5 min-h-[100px] border-gray-300 focus:border-teal-500 focus:ring-teal-500" />
+                  <Textarea
+                    id="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    className="mt-1.5 min-h-[100px] border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                  />
                 </div>
 
                 <div>
@@ -559,11 +611,23 @@ export default function WhaleDashboard() {
                   <div className="space-y-3">
                     <div className="relative">
                       <Twitter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input id="twitter" placeholder="Twitter / X" value={formData.twitter} onChange={handleInputChange} className="pl-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500" />
+                      <Input
+                        id="twitter"
+                        placeholder="Twitter / X"
+                        value={formData.twitter}
+                        onChange={handleInputChange}
+                        className="pl-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                      />
                     </div>
                     <div className="relative">
                       <MessageCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input id="telegram" placeholder="Telegram" value={formData.telegram} onChange={handleInputChange} className="pl-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500" />
+                      <Input
+                        id="telegram"
+                        placeholder="Telegram"
+                        value={formData.telegram}
+                        onChange={handleInputChange}
+                        className="pl-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                      />
                     </div>
                   </div>
                 </div>
@@ -600,5 +664,5 @@ export default function WhaleDashboard() {
         </div>
       </footer>
     </div>
-  );
+  )
 }

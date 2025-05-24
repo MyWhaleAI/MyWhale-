@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
-import { submitWhaleApplication, checkApplicationStatus } from "@/actions/whale-application";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
-import { WalletButton } from "@/components/wallet/wallet-button";
-import { CheckCircle, AlertCircle, Clock, Ban, CheckCircle2 } from "lucide-react";
+import { submitWhaleApplication, checkApplicationStatus } from "../actions/whale-application"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Textarea } from "@/components/ui/textarea"
+import { WalletButton } from "@/components/wallet/wallet-button"
+import { CheckCircle, AlertCircle, Clock, Ban, CheckCircle2 } from "lucide-react"
 
 const formSchema = z.object({
   displayName: z.string().min(3, "Display name must be at least 3 characters"),
@@ -33,26 +33,26 @@ const formSchema = z.object({
     meme: z.boolean().optional(),
   }),
   monetizationModel: z.enum(["public", "paid"]),
-});
+})
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>
 
 export default function ApplyPage() {
-  const { publicKey, connected } = useWallet();
-  const [submitting, setSubmitting] = useState(false);
-  const [checking, setChecking] = useState(false);
+  const { publicKey, connected } = useWallet()
+  const [submitting, setSubmitting] = useState(false)
+  const [checking, setChecking] = useState(false)
   const [applicationStatus, setApplicationStatus] = useState<{
-    status: string | null;
-    message: string;
-    submittedAt?: string;
-    approvedAt?: string;
-    rejectedAt?: string;
-  } | null>(null);
+    status: string | null
+    message: string
+    submittedAt?: string
+    approvedAt?: string
+    rejectedAt?: string
+  } | null>(null)
   const [submitResult, setSubmitResult] = useState<{
-    success: boolean;
-    message: string;
-    status?: string | null;
-  } | null>(null);
+    success: boolean
+    message: string
+    status?: string | null
+  } | null>(null)
 
   // Initialize form
   const form = useForm<FormValues>({
@@ -72,32 +72,32 @@ export default function ApplyPage() {
       },
       monetizationModel: "public",
     },
-  });
+  })
 
   // Check application status when wallet connects
   useEffect(() => {
     async function checkStatus() {
       if (connected && publicKey) {
-        setChecking(true);
+        setChecking(true)
         try {
-          const status = await checkApplicationStatus(publicKey.toString());
-          setApplicationStatus(status);
+          const status = await checkApplicationStatus(publicKey.toString())
+          setApplicationStatus(status)
         } catch (error) {
-          console.error("Error checking application status:", error);
+          console.error("Error checking application status:", error)
         } finally {
-          setChecking(false);
+          setChecking(false)
         }
       } else {
-        setApplicationStatus(null);
+        setApplicationStatus(null)
       }
     }
 
-    checkStatus();
-  }, [connected, publicKey]);
+    checkStatus()
+  }, [connected, publicKey])
 
   // Handle form submission
   async function handleSubmit(values: FormValues) {
-    if (!publicKey) return;
+    if (!publicKey) return
 
     // Don't allow submission if there's a pending application
     if (applicationStatus?.status === "pending") {
@@ -105,8 +105,8 @@ export default function ApplyPage() {
         success: false,
         message: applicationStatus.message,
         status: "pending",
-      });
-      return;
+      })
+      return
     }
 
     // Don't allow submission if already approved
@@ -115,42 +115,42 @@ export default function ApplyPage() {
         success: false,
         message: applicationStatus.message,
         status: "approved",
-      });
-      return;
+      })
+      return
     }
 
-    setSubmitting(true);
-    setSubmitResult(null);
+    setSubmitting(true)
+    setSubmitResult(null)
 
     try {
       const result = await submitWhaleApplication({
         ...values,
         walletAddress: publicKey.toString(),
-      });
+      })
 
-      setSubmitResult(result);
+      setSubmitResult(result)
 
       // Update application status after submission
       if (result.success) {
         setApplicationStatus({
           status: result.status || null,
           message: result.message,
-        });
+        })
       }
     } catch (error) {
-      console.error("Error submitting whale application:", error);
+      console.error("Error submitting whale application:", error)
       setSubmitResult({
         success: false,
         message: "An unexpected error occurred. Please try again.",
-      });
+      })
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
   }
 
   // Render application status message
   function renderApplicationStatus() {
-    if (!applicationStatus) return null;
+    if (!applicationStatus) return null
 
     if (applicationStatus.status === "pending") {
       return (
@@ -159,10 +159,14 @@ export default function ApplyPage() {
           <AlertTitle>Application Pending</AlertTitle>
           <AlertDescription>
             {applicationStatus.message}
-            {applicationStatus.submittedAt && <p className="mt-2 text-sm">Submitted on: {new Date(applicationStatus.submittedAt).toLocaleDateString()}</p>}
+            {applicationStatus.submittedAt && (
+              <p className="mt-2 text-sm">
+                Submitted on: {new Date(applicationStatus.submittedAt).toLocaleDateString()}
+              </p>
+            )}
           </AlertDescription>
         </Alert>
-      );
+      )
     } else if (applicationStatus.status === "approved") {
       return (
         <Alert className="mb-6 border-green-500 bg-green-50 text-green-900">
@@ -170,10 +174,12 @@ export default function ApplyPage() {
           <AlertTitle>Application Approved</AlertTitle>
           <AlertDescription>
             {applicationStatus.message}
-            {applicationStatus.approvedAt && <p className="mt-2 text-sm">Approved on: {new Date(applicationStatus.approvedAt).toLocaleDateString()}</p>}
+            {applicationStatus.approvedAt && (
+              <p className="mt-2 text-sm">Approved on: {new Date(applicationStatus.approvedAt).toLocaleDateString()}</p>
+            )}
           </AlertDescription>
         </Alert>
-      );
+      )
     } else if (applicationStatus.status === "rejected") {
       return (
         <Alert className="mb-6 border-red-500 bg-red-50 text-red-900">
@@ -181,27 +187,37 @@ export default function ApplyPage() {
           <AlertTitle>Application Rejected</AlertTitle>
           <AlertDescription>
             {applicationStatus.message}
-            {applicationStatus.rejectedAt && <p className="mt-2 text-sm">Rejected on: {new Date(applicationStatus.rejectedAt).toLocaleDateString()}</p>}
+            {applicationStatus.rejectedAt && (
+              <p className="mt-2 text-sm">Rejected on: {new Date(applicationStatus.rejectedAt).toLocaleDateString()}</p>
+            )}
           </AlertDescription>
         </Alert>
-      );
+      )
     }
 
-    return null;
+    return null
   }
 
   return (
     <div className="container max-w-4xl py-12 mx-auto">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold tracking-tight">Apply to Become a Whale</h1>
-        <p className="mt-4 text-muted-foreground">Join our exclusive network of Solana whales and share your insights with the community</p>
+        <p className="mt-4 text-muted-foreground">
+          Join our exclusive network of Solana whales and share your insights with the community
+        </p>
       </div>
 
       {renderApplicationStatus()}
 
       {submitResult && !applicationStatus && (
-        <Alert className={`mb-6 ${submitResult.success ? "border-green-500 bg-green-50 text-green-900" : "border-red-500 bg-red-50 text-red-900"}`}>
-          {submitResult.success ? <CheckCircle className="h-5 w-5 text-green-500" /> : <AlertCircle className="h-5 w-5 text-red-500" />}
+        <Alert
+          className={`mb-6 ${submitResult.success ? "border-green-500 bg-green-50 text-green-900" : "border-red-500 bg-red-50 text-red-900"}`}
+        >
+          {submitResult.success ? (
+            <CheckCircle className="h-5 w-5 text-green-500" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-red-500" />
+          )}
           <AlertTitle>{submitResult.success ? "Success!" : "Error"}</AlertTitle>
           <AlertDescription>{submitResult.message}</AlertDescription>
         </Alert>
@@ -210,7 +226,9 @@ export default function ApplyPage() {
       <Card>
         <CardHeader>
           <CardTitle>Whale Application</CardTitle>
-          <CardDescription>Fill out this form to apply for whale status. Your application will be reviewed by our team.</CardDescription>
+          <CardDescription>
+            Fill out this form to apply for whale status. Your application will be reviewed by our team.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {!connected ? (
@@ -227,16 +245,29 @@ export default function ApplyPage() {
             <div className="flex flex-col items-center justify-center py-8">
               <div className="mb-4 text-center">
                 <h3 className="text-xl font-semibold text-yellow-600">Application Under Review</h3>
-                <p className="mt-2 text-muted-foreground">Your application is currently being reviewed by our team. We'll notify you once a decision has been made.</p>
-                {applicationStatus.submittedAt && <p className="mt-4 text-sm text-muted-foreground">Submitted on: {new Date(applicationStatus.submittedAt).toLocaleDateString()}</p>}
+                <p className="mt-2 text-muted-foreground">
+                  Your application is currently being reviewed by our team. We'll notify you once a decision has been
+                  made.
+                </p>
+                {applicationStatus.submittedAt && (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Submitted on: {new Date(applicationStatus.submittedAt).toLocaleDateString()}
+                  </p>
+                )}
               </div>
             </div>
           ) : applicationStatus?.status === "approved" ? (
             <div className="flex flex-col items-center justify-center py-8">
               <div className="mb-4 text-center">
                 <h3 className="text-xl font-semibold text-green-600">Application Approved</h3>
-                <p className="mt-2 text-muted-foreground">Congratulations! Your wallet has been approved as a whale. You can now access all whale features.</p>
-                {applicationStatus.approvedAt && <p className="mt-4 text-sm text-muted-foreground">Approved on: {new Date(applicationStatus.approvedAt).toLocaleDateString()}</p>}
+                <p className="mt-2 text-muted-foreground">
+                  Congratulations! Your wallet has been approved as a whale. You can now access all whale features.
+                </p>
+                {applicationStatus.approvedAt && (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Approved on: {new Date(applicationStatus.approvedAt).toLocaleDateString()}
+                  </p>
+                )}
               </div>
               <Button className="mt-4" asChild>
                 <a href="/dashboard">Go to Dashboard</a>
@@ -271,9 +302,15 @@ export default function ApplyPage() {
                           <FormItem>
                             <FormLabel>Bio</FormLabel>
                             <FormControl>
-                              <Textarea placeholder="Tell us about your experience in crypto" className="min-h-32" {...field} />
+                              <Textarea
+                                placeholder="Tell us about your experience in crypto"
+                                className="min-h-32"
+                                {...field}
+                              />
                             </FormControl>
-                            <FormDescription>Share your background, expertise, and investment philosophy</FormDescription>
+                            <FormDescription>
+                              Share your background, expertise, and investment philosophy
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -365,7 +402,11 @@ export default function ApplyPage() {
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                             <FormControl>
-                              <Checkbox checked={field.value} onCheckedChange={field.onChange} id="strategies.staking" />
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                id="strategies.staking"
+                              />
                             </FormControl>
                             <div className="space-y-1 leading-none">
                               <Label htmlFor="strategies.staking">Staking</Label>
@@ -412,7 +453,11 @@ export default function ApplyPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-1"
+                            >
                               <FormItem className="flex items-center space-x-2">
                                 <FormControl>
                                   <RadioGroupItem value="public" id="public" />
@@ -435,7 +480,12 @@ export default function ApplyPage() {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button type="submit" disabled={submitting || applicationStatus?.status === "pending" || applicationStatus?.status === "approved"}>
+                  <Button
+                    type="submit"
+                    disabled={
+                      submitting || applicationStatus?.status === "pending" || applicationStatus?.status === "approved"
+                    }
+                  >
                     {submitting ? "Submitting..." : "Submit Application"}
                   </Button>
                 </div>
@@ -445,10 +495,11 @@ export default function ApplyPage() {
         </CardContent>
         <CardFooter className="flex flex-col items-start border-t px-6 py-4">
           <p className="text-sm text-muted-foreground">
-            By submitting this application, you agree to our Terms of Service and Privacy Policy. Your wallet address will be used to verify your on-chain activity.
+            By submitting this application, you agree to our Terms of Service and Privacy Policy. Your wallet address
+            will be used to verify your on-chain activity.
           </p>
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
