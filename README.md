@@ -1,41 +1,36 @@
-# 🚀 Solana Copy Trading Platform
+Here is the grammatically corrected and polished version of your text:
+# **🐋 My Whale**
 
-A **Next.js** + **Tailwind CSS** + **TypeScript** web application for **copy trading on Solana**. Users can connect their **Phantom Wallet**, follow top-performing wallets, and mirror their trades via smart contracts. Traders earn a profit share, and the platform earns a commission per follower.
+Follow your favorite whales and see how they perform. Copy trades, stakes, and NFT purchases in real time. Track your performance on a specialized dashboard and get notified when a new opportunity appears.
 
----
+**For whales:**
+Apply as a whale at `/apply`. Share your wallet activity effortlessly using our software.
+Give us some time to verify that you are a top-performing whale. Once verified, we’ll automatically share your activity with others, while you can choose to monetize it or share it for free. As a bonus, you'll get your own dashboard to keep track of your finances and community earnings :)
 
-## ✨ Features
+### **Current Project Stage:**
 
-- 🔗 **Wallet Connection** – Connect via Phantom wallet
-- 📈 **Copy Trading** – Mirror the trades of high-performing wallets
-- ⚖️ **Percentage Allocation** – Set how much of your balance to allocate
-- 🤖 **Smart Contract Automation** – Automatically replicate trades, yield farming, IDOs, and airdrop interactions
-- 💸 **Profit Sharing** – Traders earn a percentage of follower profits
-- 🧾 **Commission System** – Platform charges a fee per follower
+* Whale dashboard (currently using mock data)
+* Follower dashboard with real data
+* Whale feed and suggested whales
+* Whale application form
+* Admin panel for managing whale applications
+* Whale following
+* Automated Helius webhook creation upon whale approval
 
----
+### **In Development:**
 
-## 🛠 Tech Stack
+* Automated whale wallet activity tracking using Helius and database integration
+* WebSocket core for managing real-time activity
+* Updating whale and user dashboards
+* Monetization tools for whales
 
-- **Framework**: [Next.js](https://nextjs.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Wallet Integration**: [Phantom Wallet](https://phantom.app/)
-- **Blockchain**: [Solana](https://solana.com/)
-- **Smart Contracts**: Solana programs (not included here)
+### **After Launching:**
 
----
+* Building and managing a dedicated RPC network for wallet tracking
+* Developing a mobile app
 
-## 📦 Installation
+### **Technology Stack:**
 
-```bash
-# Clone the repo
-git clone https://github.com/your-username/your-project.git
-cd your-project
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
+* Next.js
+* Supabase
+* Helius
