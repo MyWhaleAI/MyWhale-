@@ -1,67 +1,93 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Brain, TrendingUp, Clock, DollarSign, BarChart2 } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Brain, TrendingUp, Clock, DollarSign, BarChart2 } from "lucide-react";
 
+/**
+ * Props for the WhaleStrategyInsights component.
+ * @interface WhaleStrategyInsightsProps
+ * @property {object} whale - The whale data object, expected to contain a `strategies` property.
+ * @property {object} [whale.strategies] - An object where keys are strategy names (e.g., 'defi', 'nft') and values are booleans indicating if the whale uses that strategy.
+ */
 interface WhaleStrategyInsightsProps {
-  whale: any
+  whale: {
+    strategies?: {
+      defi?: boolean;
+      nft?: boolean;
+      staking?: boolean;
+      yield?: boolean;
+      dao?: boolean;
+      meme?: boolean;
+    };
+  };
 }
 
+/**
+ * WhaleStrategyInsights component displays AI-generated insights into a whale's trading patterns
+ * based on their identified strategies, along with key performance metrics.
+ *
+ * @param {WhaleStrategyInsightsProps} { whale } - The props object containing whale data.
+ * @returns {JSX.Element} The rendered strategy insights card.
+ */
 export function WhaleStrategyInsights({ whale }: WhaleStrategyInsightsProps) {
-  // Generate AI insights based on whale's strategies
+  /**
+   * Generates a list of AI insights based on the whale's active strategies.
+   * Adds general insights if specific strategy insights are few.
+   * @returns {string[]} An array of insight strings.
+   */
   const getStrategyInsights = () => {
-    const insights = []
-    const strategies = whale?.strategies || {}
+    const insights = [];
+    const strategies = whale?.strategies || {};
 
     if (strategies.defi) {
-      insights.push("Focuses on DeFi protocols with a preference for established platforms with strong TVL growth.")
+      insights.push("Focuses on DeFi protocols with a preference for established platforms with strong TVL growth.");
     }
 
     if (strategies.nft) {
       insights.push(
         "Demonstrates a pattern of early entry into promising NFT collections, typically holding through floor price volatility.",
-      )
+      );
     }
 
     if (strategies.staking) {
       insights.push(
         "Maintains significant staked positions across multiple networks, prioritizing liquid staking derivatives.",
-      )
+      );
     }
 
     if (strategies.yield) {
       insights.push(
         "Actively rotates capital between yield farming opportunities, typically entering new pools within 48 hours of launch.",
-      )
+      );
     }
 
     if (strategies.dao) {
       insights.push(
         "Participates actively in governance across multiple DAOs, often voting in favor of treasury diversification proposals.",
-      )
+      );
     }
 
     if (strategies.meme) {
       insights.push(
         "Takes calculated positions in meme tokens, typically exiting within 72 hours of significant price appreciation.",
-      )
+      );
     }
 
-    // Add general insights if we have few strategy-specific ones
+    // Add general insights if we have few strategy-specific ones to provide a richer description
     if (insights.length < 3) {
       insights.push(
         "Demonstrates a disciplined approach to position sizing, rarely allocating more than 5% to speculative assets.",
-      )
+      );
       insights.push(
         "Shows a pattern of counter-trend buying during market corrections, particularly in blue-chip assets.",
-      )
+      );
     }
 
-    return insights
-  }
+    return insights;
+  };
 
-  const strategyInsights = getStrategyInsights()
+  const strategyInsights = getStrategyInsights();
 
-  // Generate key metrics based on whale's activity
+  // Mock data for key performance metrics. In a real application, these would be dynamic.
   const keyMetrics = [
     {
       name: "Avg. Hold Time",
@@ -87,12 +113,13 @@ export function WhaleStrategyInsights({ whale }: WhaleStrategyInsightsProps) {
       icon: <BarChart2 className="h-4 w-4 text-amber-600" />,
       color: "bg-amber-100",
     },
-  ]
+  ];
 
   return (
     <Card className="bg-white border-gray-200 rounded-xl shadow-sm overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-gray-200">
         <CardTitle className="text-lg font-bold">Strategy Insights</CardTitle>
+        {/* Badge indicating AI-generated content */}
         <Badge variant="outline" className="flex items-center gap-1 bg-teal-50 text-teal-700 border-teal-200">
           <Brain className="h-3.5 w-3.5" />
           <span>AI Generated</span>
@@ -105,7 +132,7 @@ export function WhaleStrategyInsights({ whale }: WhaleStrategyInsightsProps) {
             <ul className="space-y-2">
               {strategyInsights.map((insight, index) => (
                 <li key={index} className="text-gray-600 text-sm flex items-start gap-2">
-                  <span className="text-teal-500 mt-0.5">•</span>
+                  <span className="text-teal-500 mt-0.5">•</span> {/* Bullet point */}
                   <span>{insight}</span>
                 </li>
               ))}
@@ -118,7 +145,7 @@ export function WhaleStrategyInsights({ whale }: WhaleStrategyInsightsProps) {
               {keyMetrics.map((metric) => (
                 <div key={metric.name} className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-lg ${metric.color} flex items-center justify-center shrink-0`}>
-                    {metric.icon}
+                    {metric.icon} {/* Metric icon */}
                   </div>
                   <div>
                     <div className="text-xs text-gray-500">{metric.name}</div>
@@ -131,5 +158,5 @@ export function WhaleStrategyInsights({ whale }: WhaleStrategyInsightsProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

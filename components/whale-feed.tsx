@@ -1,53 +1,76 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Share2, Bell, ExternalLink, Info } from "lucide-react";
-import { getFollowedWhalesActivity } from "@/actions/activity-actions";
+import { getFollowedWhalesActivity } from "@/app/actions/activity-actions";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import Link from "next/link";
 
+/**
+ * WhaleFeed component displays a feed of recent activities from followed whales.
+ * It fetches activity data based on the connected Solana wallet.
+ * If no wallet is connected or no activity is found, it provides appropriate messages or sample data.
+ *
+ * @returns {JSX.Element} The rendered whale activity feed, loading skeleton, or informational messages.
+ */
 export function WhaleFeed() {
-  const [feedItems, setFeedItems] = useState([]);
+  // State to store the fetched feed items (whale activities)
+  const [feedItems, setFeedItems] = useState<any[]>([]);
+  // State to manage the loading status
   const [isLoading, setIsLoading] = useState(true);
+  // State to indicate if sample data is currently being displayed
   const [hasSampleData, setHasSampleData] = useState(false);
+  // Hook for displaying toast notifications
   const { toast } = useToast();
+  // Hook to get the connected Solana wallet's public key
   const { publicKey } = useWallet();
 
+  /**
+   * useEffect hook to load whale activity data.
+   * It runs when the `publicKey` or `toast` object changes.
+   * Fetches data using `getFollowedWhalesActivity` and updates `feedItems` and `hasSampleData` states.
+   * Manages `isLoading` state and displays toasts for errors.
+   */
   useEffect(() => {
     async function loadActivity() {
       if (!publicKey) {
+        // If no wallet is connected, stop loading and return
         setIsLoading(false);
         return;
       }
 
       try {
-        setIsLoading(true);
+        setIsLoading(true); // Set loading state to true
+        // Fetch activity data for the connected wallet
         const activity = await getFollowedWhalesActivity(publicKey.toString());
-        setFeedItems(activity);
+        setFeedItems(activity); // Update feed items state
 
-        // Check if we're showing sample data
-        setHasSampleData(activity.some((item) => item.isSample));
+        // Determine if sample data is being shown (e.g., if the backend returns a flag)
+        setHasSampleData(activity.some((item: any) => item.isSample));
       } catch (error) {
         console.error("Error loading whale activity:", error);
+        // Display an error toast if fetching fails
         toast({
           title: "Error",
           description: "Failed to load whale activity",
           variant: "destructive",
         });
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Always set loading to false after attempt
       }
     }
 
-    loadActivity();
-  }, [publicKey, toast]);
+    loadActivity(); // Call the function to load activity
+  }, [publicKey, toast]); // Dependencies for useEffect: re-run when publicKey or toast changes
 
+  // Display a loading skeleton if data is still loading
   if (isLoading) {
     return <FeedSkeleton />;
   }
 
+  // Message for when no wallet is connected
   if (!publicKey) {
     return (
       <div className="p-8 text-center">
@@ -56,10 +79,13 @@ export function WhaleFeed() {
     );
   }
 
+  // Message for when no feed items are found after loading
   if (feedItems.length === 0) {
     return (
       <div className="p-8 text-center">
-        <p className="text-gray-500 mb-4">You're not following any whales yet, or your whales haven't had any recent activity</p>
+        <p className="text-gray-500 mb-4">
+          You're not following any whales yet, or your whales haven't had any recent activity
+        </p>
         <Button className="bg-teal-500 hover:bg-teal-600 text-white" asChild>
           <Link href="/whales">Discover Whales to Follow</Link>
         </Button>
@@ -69,13 +95,15 @@ export function WhaleFeed() {
 
   return (
     <div className="overflow-x-auto">
+      {/* Sample Data Disclaimer */}
       {hasSampleData && (
         <div className="bg-amber-50 border-l-4 border-amber-400 p-4 m-4 rounded">
           <div className="flex items-start">
             <Info className="h-5 w-5 text-amber-400 mr-2 mt-0.5" />
             <div>
               <p className="text-sm text-amber-800">
-                <strong>Demo Mode:</strong> Showing sample transactions since you don't have any activity from followed whales yet.
+                <strong>Demo Mode:</strong> Showing sample transactions since you don't have any activity from followed
+                whales yet.
               </p>
               <p className="text-xs text-amber-700 mt-1">
                 Follow some whales on the{" "}
@@ -105,15 +133,29 @@ export function WhaleFeed() {
           </thead>
           <tbody>
             {feedItems.map((item) => (
-              <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer group">
+              <tr
+                key={item.id}
+                className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer group"
+              >
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     {item.avatarUrl ? (
-                      <img src={item.avatarUrl || "/placeholder.svg"} alt={item.whale} className="w-8 h-8 rounded-lg object-cover" />
+                      <img
+                        src={item.avatarUrl || "/placeholder.svg"}
+                        alt={item.whale}
+                        className="w-8 h-8 rounded-lg object-cover"
+                      />
                     ) : (
-                      <div className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-xs font-bold text-white`}>{item.avatar}</div>
+                      <div
+                        className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-xs font-bold text-white`}
+                      >
+                        {item.avatar}
+                      </div>
                     )}
-                    <Link href={`/whale/${item.whaleAddress}`} className="text-gray-800 font-medium text-sm hover:text-teal-600">
+                    <Link
+                      href={`/whale/${item.whaleAddress}`}
+                      className="text-gray-800 font-medium text-sm hover:text-teal-600"
+                    >
                       {item.whale}
                     </Link>
                   </div>
@@ -125,13 +167,28 @@ export function WhaleFeed() {
                 <td className="p-3 text-gray-600 max-w-[300px] text-sm">"{item.insight}"</td>
                 <td className="p-3 text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" title="Bookmark">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Bookmark"
+                    >
                       <Bookmark className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" title="Set Alert">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Set Alert"
+                    >
                       <Bell className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" title="Share">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Share"
+                    >
                       <Share2 className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
                     </Button>
                     <Button
@@ -139,7 +196,8 @@ export function WhaleFeed() {
                       size="icon"
                       className="rounded-full h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
                       title="View Transaction"
-                      onClick={() => window.open(`https://solscan.io/tx/${item.signature}`, "_blank")}>
+                      onClick={() => window.open(`https://solscan.io/tx/${item.signature}`, "_blank")}
+                    >
                       <ExternalLink className="h-3.5 w-3.5 text-gray-400 hover:text-teal-500" />
                     </Button>
                   </div>
@@ -157,18 +215,34 @@ export function WhaleFeed() {
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center gap-2">
                 {item.avatarUrl ? (
-                  <img src={item.avatarUrl || "/placeholder.svg"} alt={item.whale} className="w-8 h-8 rounded-lg object-cover" />
+                  <img
+                    src={item.avatarUrl || "/placeholder.svg"}
+                    alt={item.whale}
+                    className="w-8 h-8 rounded-lg object-cover"
+                  />
                 ) : (
-                  <div className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-xs font-bold text-white`}>{item.avatar}</div>
+                  <div
+                    className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-xs font-bold text-white`}
+                  >
+                    {item.avatar}
+                  </div>
                 )}
                 <div>
-                  <Link href={`/whale/${item.whaleAddress}`} className="text-gray-800 font-medium text-sm hover:text-teal-600">
+                  <Link
+                    href={`/whale/${item.whaleAddress}`}
+                    className="text-gray-800 font-medium text-sm hover:text-teal-600"
+                  >
                     {item.whale}
                   </Link>
                   <div className="text-gray-500 text-xs">{item.time}</div>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => window.open(`https://solscan.io/tx/${item.signature}`, "_blank")}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full"
+                onClick={() => window.open(`https://solscan.io/tx/${item.signature}`, "_blank")}
+              >
                 <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
               </Button>
             </div>
@@ -208,6 +282,12 @@ export function WhaleFeed() {
   );
 }
 
+/**
+ * FeedSkeleton component provides a loading skeleton for the WhaleFeed.
+ * It displays animated gray boxes to indicate that content is being loaded.
+ *
+ * @returns {JSX.Element} The rendered skeleton loading state.
+ */
 function FeedSkeleton() {
   return (
     <div className="p-4">

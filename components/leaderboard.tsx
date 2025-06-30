@@ -1,8 +1,11 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Users, BarChart2 } from "lucide-react"
+"use client";
 
-// Mock data for leaderboard
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users, BarChart2 } from "lucide-react";
+import { useFollow } from "@/hooks/use-follow";
+
+// Mocking data for now
 const leaderboardItems = [
   {
     id: 1,
@@ -49,43 +52,56 @@ const leaderboardItems = [
     avatar: "S",
     avatarColor: "bg-red-500",
   },
-]
+];
 
+/**
+ * Displays a leaderboard of top whale profiles, each with a follow button.
+ * The follow button's state is managed by the `useFollow` hook.
+ */
 export function Leaderboard() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-      {leaderboardItems.map((item, index) => (
-        <Card key={item.id} className="bg-white border-gray-200 rounded-xl shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div
-                className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-sm font-bold text-white`}
+      {leaderboardItems.map((item) => {
+        const { isFollowing, isLoading, toggleFollow } = useFollow(item.id.toString());
+
+        return (
+          <Card key={item.id} className="bg-white border-gray-200 rounded-xl shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className={`w-8 h-8 rounded-lg ${item.avatarColor} flex items-center justify-center text-sm font-bold text-white`}
+                >
+                  {item.avatar}
+                </div>
+                <div>
+                  <div className="font-bold text-gray-800 text-sm">{item.whale}</div>
+                  <div className="text-emerald-600 text-xs font-medium">{item.roi} this week</div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-1 text-gray-500 text-xs">
+                  <Users className="h-3 w-3" />
+                  <span>{item.followers}</span>
+                </div>
+                <div className="flex items-center gap-1 text-gray-500 text-xs">
+                  <BarChart2 className="h-3 w-3" />
+                  <span>{item.volume}</span>
+                </div>
+              </div>
+
+              <Button
+                className={`w-full rounded-lg transition-all duration-200 ease-in-out text-xs py-1.5 
+                  ${isFollowing ? "bg-gray-100 hover:bg-gray-200 text-gray-800" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
+                onClick={toggleFollow}
+                disabled={isLoading}
               >
-                {item.avatar}
-              </div>
-              <div>
-                <div className="font-bold text-gray-800 text-sm">{item.whale}</div>
-                <div className="text-emerald-600 text-xs font-medium">{item.roi} this week</div>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center mb-3">
-              <div className="flex items-center gap-1 text-gray-500 text-xs">
-                <Users className="h-3 w-3" />
-                <span>{item.followers}</span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-500 text-xs">
-                <BarChart2 className="h-3 w-3" />
-                <span>{item.volume}</span>
-              </div>
-            </div>
-
-            <Button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-all duration-200 ease-in-out text-xs py-1.5">
-              {index === 0 ? "Following" : "Follow"}
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
+                {isLoading ? "Loading..." : isFollowing ? "Following" : "Follow"}
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
-  )
+  );
 }

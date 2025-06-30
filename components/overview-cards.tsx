@@ -1,9 +1,15 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { TrendingUp, Users, Award, DollarSign, Info } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { TrendingUp, Users, Award, DollarSign, Info } from "lucide-react";
 
+/**
+ * Renders a grid of overview cards displaying key metrics.
+ * Each card includes an icon, a title, a main value, and a trend indicator.
+ * An informational "Info" button is also present on each card.
+ */
 export function OverviewCards() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* Card: Followed Whales */}
       <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
@@ -23,10 +29,12 @@ export function OverviewCards() {
         </CardContent>
       </Card>
 
+      {/* Card: New Alerts Today */}
       <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+              {/* Custom SVG for a lightning bolt icon, representing alerts */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -53,6 +61,7 @@ export function OverviewCards() {
         </CardContent>
       </Card>
 
+      {/* Card: Top Performing Whale */}
       <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
@@ -72,6 +81,7 @@ export function OverviewCards() {
         </CardContent>
       </Card>
 
+      {/* Card: Feed Value Moved Today */}
       <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
@@ -91,5 +101,5 @@ export function OverviewCards() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

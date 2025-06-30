@@ -1,12 +1,20 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Bell, Target, BarChart2, ArrowRight } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Bell, Target, BarChart2, ArrowRight } from "lucide-react";
 
+/**
+ * CustomizeFeed component highlights the features for personalizing the whale activity feed.
+ * It explains how users can set alerts, follow by strategy, and track performance metrics.
+ * It also includes a preview of a custom feed.
+ *
+ * @returns {JSX.Element} The rendered "Customize Your Whale Feed" section.
+ */
 export function CustomizeFeed() {
   return (
     <section className="py-12 sm:py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left Column: Description and Features */}
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Customize Your Whale Feed</h2>
             <p className="text-gray-600 mb-6">
@@ -15,6 +23,7 @@ export function CustomizeFeed() {
             </p>
 
             <div className="space-y-4 mb-8">
+              {/* Feature 1: Set alerts */}
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0 mt-0.5">
                   <Bell className="h-4 w-4 text-teal-600" />
@@ -27,6 +36,7 @@ export function CustomizeFeed() {
                 </div>
               </div>
 
+              {/* Feature 2: Follow by strategy */}
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
                   <Target className="h-4 w-4 text-blue-600" />
@@ -39,6 +49,7 @@ export function CustomizeFeed() {
                 </div>
               </div>
 
+              {/* Feature 3: Track performance metrics */}
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0 mt-0.5">
                   <BarChart2 className="h-4 w-4 text-purple-600" />
@@ -52,18 +63,22 @@ export function CustomizeFeed() {
               </div>
             </div>
 
+            {/* Call to Action Button */}
             <Button className="bg-teal-500 hover:bg-teal-600 text-white flex items-center gap-2">
               Create My Feed
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
 
+          {/* Right Column: Custom Feed Preview Card */}
           <div className="relative">
             <Card className="bg-white border-gray-200 rounded-xl shadow-sm overflow-hidden">
               <CardContent className="p-0">
+                {/* Preview Header */}
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center">
                   <h3 className="font-bold text-gray-800">Your Custom Feed Preview</h3>
                   <div className="flex gap-2">
+                    {/* Filter Buttons for Preview */}
                     <Button variant="outline" size="sm" className="text-xs h-7 px-2 border-gray-200">
                       DeFi
                     </Button>
@@ -76,8 +91,9 @@ export function CustomizeFeed() {
                   </div>
                 </div>
 
+                {/* Preview Feed Items */}
                 <div className="p-4 space-y-3">
-                  {/* Feed items */}
+                  {/* Feed Item 1 */}
                   <div className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
@@ -95,6 +111,7 @@ export function CustomizeFeed() {
                     </div>
                   </div>
 
+                  {/* Feed Item 2 */}
                   <div className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
@@ -112,6 +129,7 @@ export function CustomizeFeed() {
                     </div>
                   </div>
 
+                  {/* Feed Item 3 */}
                   <div className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
@@ -132,12 +150,12 @@ export function CustomizeFeed() {
               </CardContent>
             </Card>
 
-            {/* Decorative elements */}
+            {/* Decorative circles */}
             <div className="hidden lg:block absolute -top-6 -right-6 w-20 h-20 bg-teal-50 rounded-full z-0"></div>
             <div className="hidden lg:block absolute -bottom-8 -left-8 w-16 h-16 bg-blue-50 rounded-full z-0"></div>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

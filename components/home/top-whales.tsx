@@ -1,9 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, BarChart2 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { TrendingUp, Users, BarChart2 } from "lucide-react";
 
-// Mock data for top whales
+// Mock data for top whales to be displayed on the landing page
 const topWhales = [
   {
     id: 1,
@@ -45,12 +45,20 @@ const topWhales = [
     avatar: "S",
     avatarColor: "bg-amber-500",
   },
-]
+];
 
+/**
+ * TopWhales component displays a selection of top-performing Solana whales.
+ * It showcases their ROI, followers, volume, and key strategies.
+ * Includes mock time period filters and a follow button for each whale.
+ *
+ * @returns {JSX.Element} The rendered top whales section.
+ */
 export function TopWhales() {
   return (
     <section className="py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Top Solana Whales</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -58,6 +66,7 @@ export function TopWhales() {
           </p>
         </div>
 
+        {/* Time Period Filter Buttons (mock functionality) */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
           <Button variant="outline" size="sm" className="rounded-full border-gray-200 text-gray-700">
             7d
@@ -74,11 +83,13 @@ export function TopWhales() {
           </Button>
         </div>
 
+        {/* Whales Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {topWhales.map((whale) => (
             <Card key={whale.id} className="bg-white border-gray-200 rounded-xl shadow-sm">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-4">
+                  {/* Whale Avatar */}
                   <div
                     className={`w-10 h-10 rounded-xl ${whale.avatarColor} flex items-center justify-center text-sm font-bold text-white`}
                   >
@@ -93,6 +104,7 @@ export function TopWhales() {
                   </div>
                 </div>
 
+                {/* Strategy Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {whale.tags.map((tag) => (
                     <Badge
@@ -105,7 +117,7 @@ export function TopWhales() {
                             ? "bg-purple-50 text-purple-700 border-purple-200"
                             : tag === "Staking"
                               ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : "bg-amber-50 text-amber-700 border-amber-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200" // Default for DAOs, etc.
                       }
                     >
                       {tag}
@@ -113,6 +125,7 @@ export function TopWhales() {
                   ))}
                 </div>
 
+                {/* Followers and Volume Stats */}
                 <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" />
@@ -124,6 +137,7 @@ export function TopWhales() {
                   </div>
                 </div>
 
+                {/* Follow Button */}
                 <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white">Follow</Button>
               </CardContent>
             </Card>
@@ -131,5 +145,5 @@ export function TopWhales() {
         </div>
       </div>
     </section>
-  )
+  );
 }

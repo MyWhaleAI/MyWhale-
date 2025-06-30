@@ -1,8 +1,11 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { TrendingUp, Zap } from "lucide-react"
+"use client";
 
-// Mock data for whale suggestions
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, Zap } from "lucide-react";
+import { useFollow } from "@/hooks/use-follow";
+
+// Mocking data for now
 const suggestedWhales = [
   {
     id: 1,
@@ -31,40 +34,52 @@ const suggestedWhales = [
     avatarColor: "bg-blue-500",
     description: "Focuses on liquid staking derivatives and staking optimization.",
   },
-]
+];
 
+/**
+ * Renders a grid of suggested whale profiles, each with a follow button.
+ * The follow button's state is managed by the `useFollow` hook.
+ */
 export function WhaleSuggestions() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-      {suggestedWhales.map((whale) => (
-        <Card key={whale.id} className="bg-white border-gray-200 rounded-xl shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div
-                className={`w-8 h-8 rounded-lg ${whale.avatarColor} flex items-center justify-center text-sm font-bold text-white`}
+      {suggestedWhales.map((whale) => {
+        const { isFollowing, isLoading, toggleFollow } = useFollow(whale.id.toString());
+
+        return (
+          <Card key={whale.id} className="bg-white border-gray-200 rounded-xl shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className={`w-8 h-8 rounded-lg ${whale.avatarColor} flex items-center justify-center text-sm font-bold text-white`}
+                >
+                  {whale.avatar}
+                </div>
+                <div>
+                  <div className="font-bold text-gray-800 text-sm">{whale.whale}</div>
+                  <div className="text-gray-500 text-xs">{whale.strategy}</div>
+                </div>
+              </div>
+
+              <p className="text-gray-600 mb-3 text-xs">{whale.description}</p>
+
+              <div className="flex items-center gap-1 text-emerald-600 mb-3 text-xs">
+                <TrendingUp className="h-3 w-3" />
+                <span>{whale.roi} monthly ROI</span>
+              </div>
+
+              <Button
+                className={`w-full rounded-lg transition-all duration-200 ease-in-out flex items-center justify-center gap-1 text-xs py-1.5 
+                  ${isFollowing ? "bg-gray-100 hover:bg-gray-200 text-gray-800" : "bg-teal-500 hover:bg-teal-600 text-white"}`}
+                onClick={toggleFollow}
+                disabled={isLoading}
               >
-                {whale.avatar}
-              </div>
-              <div>
-                <div className="font-bold text-gray-800 text-sm">{whale.whale}</div>
-                <div className="text-gray-500 text-xs">{whale.strategy}</div>
-              </div>
-            </div>
-
-            <p className="text-gray-600 mb-3 text-xs">{whale.description}</p>
-
-            <div className="flex items-center gap-1 text-emerald-600 mb-3 text-xs">
-              <TrendingUp className="h-3 w-3" />
-              <span>{whale.roi} monthly ROI</span>
-            </div>
-
-            <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-all duration-200 ease-in-out flex items-center justify-center gap-1 text-xs py-1.5">
-              <Zap className="h-3 w-3" />
-              Follow
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
+                {isLoading ? "Loading..." : isFollowing ? "Following" : <><Zap className="h-3 w-3" /> Follow</>}
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
-  )
+  );
 }

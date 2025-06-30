@@ -1,10 +1,18 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Zap, Brain, Lightbulb } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Zap, Brain, Lightbulb } from "lucide-react";
 
+/**
+ * AiExplanations component highlights the AI-powered features of the platform.
+ * It showcases how AI provides insights into transactions, recognizes patterns,
+ * and generates strategy alerts.
+ *
+ * @returns {JSX.Element} The rendered AI explanations section.
+ */
 export function AiExplanations() {
   return (
     <section className="py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center justify-center p-2 bg-teal-50 rounded-xl mb-4">
             <Brain className="h-5 w-5 text-teal-600" />
@@ -15,7 +23,9 @@ export function AiExplanations() {
           </p>
         </div>
 
+        {/* Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {/* Card 1: Transaction Insights */}
           <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -33,6 +43,7 @@ export function AiExplanations() {
             </CardContent>
           </Card>
 
+          {/* Card 2: Pattern Recognition */}
           <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -50,6 +61,7 @@ export function AiExplanations() {
             </CardContent>
           </Card>
 
+          {/* Card 3: Strategy Alerts */}
           <Card className="bg-white border-gray-200 rounded-xl shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -69,5 +81,5 @@ export function AiExplanations() {
         </div>
       </div>
     </section>
-  )
+  );
 }

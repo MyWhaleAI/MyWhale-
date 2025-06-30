@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
-// Mock data for live whale feed
+// Mock data for live whale feed activities
 const whaleActivities = [
   {
     id: 1,
@@ -34,12 +34,20 @@ const whaleActivities = [
     avatar: "Y",
     avatarColor: "bg-emerald-500",
   },
-]
+];
 
+/**
+ * LiveWhaleFeed component displays a real-time (mocked) feed of recent whale activities.
+ * It shows key details of transactions from top wallets on Solana,
+ * presented in both desktop table and mobile card views.
+ *
+ * @returns {JSX.Element} The rendered live whale activity feed section.
+ */
 export function LiveWhaleFeed() {
   return (
     <section className="py-12 sm:py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Live Whale Activity Feed</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -47,13 +55,14 @@ export function LiveWhaleFeed() {
           </p>
         </div>
 
+        {/* Activity Feed Card */}
         <Card className="bg-white border-gray-200 rounded-xl shadow-sm max-w-4xl mx-auto">
           <CardHeader className="pb-0">
             <CardTitle className="text-lg font-bold text-gray-800">Real-time Solana whale moves</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="overflow-x-auto">
-              {/* Desktop view */}
+              {/* Desktop Table View */}
               <table className="w-full hidden sm:table">
                 <thead>
                   <tr className="border-b border-gray-200">
@@ -86,7 +95,7 @@ export function LiveWhaleFeed() {
                 </tbody>
               </table>
 
-              {/* Mobile view */}
+              {/* Mobile Card View */}
               <div className="sm:hidden space-y-3">
                 {whaleActivities.map((activity) => (
                   <div key={activity.id} className="border-b border-gray-200 pb-3">
@@ -113,6 +122,7 @@ export function LiveWhaleFeed() {
               </div>
             </div>
 
+            {/* View Full Feed Button */}
             <div className="mt-6 text-center">
               <Button
                 variant="ghost"
@@ -126,5 +136,5 @@ export function LiveWhaleFeed() {
         </Card>
       </div>
     </section>
-  )
+  );
 }

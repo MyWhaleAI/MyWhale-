@@ -1,16 +1,25 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Mail, Twitter, MessageSquare, Github } from "lucide-react"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Mail, Twitter, MessageSquare, Github } from "lucide-react";
 
+/**
+ * HomeFooter component provides the footer section for the landing page.
+ * It includes branding, a brief description, social media links,
+ * navigation links, a newsletter subscription form, and copyright information.
+ *
+ * @returns {JSX.Element} The rendered home page footer.
+ */
 export function HomeFooter() {
   return (
     <footer className="bg-gray-900 text-gray-300 py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          {/* Brand and Social Links Section */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-teal-400 to-blue-500 flex items-center justify-center">
+                {/* Custom SVG icon for the brand */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -38,6 +47,7 @@ export function HomeFooter() {
               market.
             </p>
             <div className="flex gap-3">
+              {/* Social Media Buttons */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -65,6 +75,7 @@ export function HomeFooter() {
             </div>
           </div>
 
+          {/* Links Section */}
           <div>
             <h3 className="font-bold text-white mb-4">Links</h3>
             <ul className="space-y-2 text-sm">
@@ -91,6 +102,7 @@ export function HomeFooter() {
             </ul>
           </div>
 
+          {/* Subscribe Section */}
           <div>
             <h3 className="font-bold text-white mb-4">Subscribe</h3>
             <p className="text-gray-400 text-sm mb-4">Get weekly updates on whale movements and market insights.</p>
@@ -107,10 +119,11 @@ export function HomeFooter() {
           </div>
         </div>
 
+        {/* Copyright Information */}
         <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
           <p>© {new Date().getFullYear()} MyWhale. All rights reserved.</p>
         </div>
       </div>
     </footer>
-  )
+  );
 }

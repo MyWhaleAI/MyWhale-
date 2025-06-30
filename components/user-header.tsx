@@ -1,33 +1,43 @@
-import { Button } from "@/components/ui/button"
-import { Bell } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Bell } from "lucide-react";
 
+/**
+ * UserHeader component displays user-related actions and a simplified profile view.
+ * It includes a notification bell with an indicator, a "Mint Now" button,
+ * and a display for the user's initials, name, and a truncated wallet address with balance.
+ *
+ * @returns {JSX.Element} The rendered user header.
+ */
 export function UserHeader() {
   return (
     <div className="flex items-center gap-4">
+      {/* Notification Bell Button */}
       <Button
         variant="ghost"
         size="icon"
         className="relative h-12 w-12 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
       >
         <Bell className="h-5 w-5 text-gray-700" />
-        <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+        <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></span> {/* Notification indicator */}
       </Button>
 
+      {/* Mint Now Button */}
       <Button className="bg-teal-500 hover:bg-teal-600 text-white rounded-2xl px-6 py-3 transition-all duration-200 ease-in-out shadow-sm text-base font-medium">
         Mint Now
       </Button>
 
+      {/* User Profile and Wallet Info */}
       <div className="flex items-center gap-3 bg-white p-2 pr-5 rounded-2xl border border-gray-200 shadow-sm">
         <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-          <span className="text-base font-bold text-white">JD</span>
+          <span className="text-base font-bold text-white">JD</span> {/* User initials */}
         </div>
         <div>
-          <div className="font-bold text-gray-800">John Deere</div>
+          <div className="font-bold text-gray-800">John Deere</div> {/* User name */}
           <div className="text-teal-600 text-sm">
-            0x13...435b <span className="text-teal-700 font-medium">+10,000.56 BNB</span>
+            0x13...435b <span className="text-teal-700 font-medium">+10,000.56 BNB</span> {/* Truncated address and balance */}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

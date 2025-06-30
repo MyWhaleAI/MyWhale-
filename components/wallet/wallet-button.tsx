@@ -5,34 +5,59 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Button } from "@/components/ui/button";
 import { Wallet, ChevronDown, Copy, LogOut, ExternalLink } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { truncateAddress } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { addFollower } from "@/actions/follower-actions";
+import { addFollower } from "@/app/actions/follower-actions";
 
+/**
+ * WalletButton component provides UI for connecting to a Solana wallet,
+ * displaying connected wallet information, balance, and actions like
+ * copying address, viewing on explorer, and disconnecting.
+ * It also registers the user as a follower upon successful connection.
+ *
+ * @returns {JSX.Element} The rendered wallet connection button or dropdown.
+ */
 export function WalletButton() {
+  // Hooks from Solana wallet adapter for wallet state and modal control
   const { publicKey, wallet, disconnect, connected } = useWallet();
   const { setVisible } = useWalletModal();
+  // Custom toast hook for notifications
   const { toast } = useToast();
+  // State for copy-to-clipboard feedback
   const [copied, setCopied] = useState(false);
+  // State for wallet balance
   const [balance, setBalance] = useState<number | null>(null);
+  // State for loading status of balance fetch
   const [isLoading, setIsLoading] = useState(false);
 
-  // Simulate fetching balance when connected
+  /**
+   * Simulates fetching wallet balance when connected.
+   * In a real application, this would involve a Solana RPC call.
+   */
   useEffect(() => {
     if (connected && publicKey) {
       setIsLoading(true);
-      // This is a mock - in a real app, you would fetch the actual balance
+      // Mock balance fetching with a delay
       setTimeout(() => {
-        setBalance(Math.random() * 100);
+        setBalance(Math.random() * 100); // Random mock balance
         setIsLoading(false);
       }, 1000);
     } else {
-      setBalance(null);
+      setBalance(null); // Clear balance if disconnected
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey]); // Re-run when connection status or public key changes
 
-  // Register follower when connected
+  /**
+   * Registers the connected wallet as a follower in the backend.
+   * Displays a welcome toast on successful registration.
+   */
   useEffect(() => {
     const registerFollower = async () => {
       if (connected && publicKey) {
@@ -52,39 +77,54 @@ export function WalletButton() {
     };
 
     registerFollower();
-  }, [connected, publicKey, toast]);
+  }, [connected, publicKey, toast]); // Re-run when connection status, public key, or toast object changes
 
+  /**
+   * Handles copying the wallet's public address to the clipboard.
+   * Provides visual feedback to the user.
+   */
   const handleCopyAddress = () => {
     if (publicKey) {
       navigator.clipboard.writeText(publicKey.toString());
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
     }
   };
 
+  /**
+   * Opens the connected wallet's address on the Solana Explorer in a new tab.
+   */
   const openExplorer = () => {
     if (publicKey) {
       window.open(`https://explorer.solana.com/address/${publicKey.toString()}`, "_blank");
     }
   };
 
+  // Render "Connect Wallet" button if not connected
   if (!connected) {
     return (
       <Button
-        onClick={() => setVisible(true)}
-        className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white flex items-center gap-2 py-2 px-4 rounded-xl transition-all duration-200 ease-in-out shadow-sm">
+        onClick={() => setVisible(true)} // Open wallet modal
+        className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white flex items-center gap-2 py-2 px-4 rounded-xl transition-all duration-200 ease-in-out shadow-sm"
+      >
         <Wallet className="h-4 w-4" />
         <span>Connect Wallet</span>
       </Button>
     );
   }
 
+  // Render dropdown menu if connected
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="border-gray-200 bg-white hover:bg-gray-50 text-gray-800 flex items-center gap-2 py-2 px-4 rounded-xl transition-all duration-200 ease-in-out shadow-sm">
+        <Button
+          variant="outline"
+          className="border-gray-200 bg-white hover:bg-gray-50 text-gray-800 flex items-center gap-2 py-2 px-4 rounded-xl transition-all duration-200 ease-in-out shadow-sm"
+        >
           <div className="flex items-center gap-2">
-            {wallet?.adapter.icon && <img src={wallet.adapter.icon || "/placeholder.svg"} alt={wallet.adapter.name} className="h-4 w-4" />}
+            {wallet?.adapter.icon && (
+              <img src={wallet.adapter.icon || "/placeholder.svg"} alt={wallet.adapter.name} className="h-4 w-4" />
+            )}
             <span className="font-medium">{truncateAddress(publicKey?.toString() || "")}</span>
           </div>
           <ChevronDown className="h-4 w-4 text-gray-500" />
@@ -95,9 +135,9 @@ export function WalletButton() {
           <p className="text-xs text-gray-500">Connected as</p>
           <p className="font-medium text-sm">{wallet?.adapter.name}</p>
           {isLoading ? (
-            <div className="h-5 w-20 bg-gray-200 animate-pulse rounded mt-1"></div>
+            <div className="h-5 w-20 bg-gray-200 animate-pulse rounded mt-1"></div> // Loading skeleton for balance
           ) : balance !== null ? (
-            <p className="text-teal-600 font-medium text-sm">{balance.toFixed(2)} SOL</p>
+            <p className="text-teal-600 font-medium text-sm">{balance.toFixed(2)} SOL</p> // Display formatted balance
           ) : null}
         </div>
         <DropdownMenuSeparator />

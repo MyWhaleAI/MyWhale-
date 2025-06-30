@@ -6,14 +6,22 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Settings, Bell, Clock, Mail, MessageSquare, Smartphone, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { updateFollowerPreferences } from "@/actions/follower-actions";
+import { updateFollowerPreferences } from "@/app/actions/follower-actions";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ * Props for the SettingsSidebar component.
+ * @interface SettingsSidebarProps
+ * @property {() => void} [onClose] - Optional callback function to close the sidebar.
+ */
 interface SettingsSidebarProps {
   onClose?: () => void;
 }
 
-// Define the preferences type with default values
+/**
+ * Default notification preferences.
+ * These values are used as initial state and fallback if fetched preferences are incomplete.
+ */
 const DEFAULT_PREFERENCES = {
   alerts: {
     buys: true,
@@ -32,7 +40,22 @@ const DEFAULT_PREFERENCES = {
   },
 };
 
-// Define the preferences type
+/**
+ * Interface defining the structure of notification preferences.
+ * @interface NotificationPreferences
+ * @property {object} alerts - Settings for different types of alerts.
+ * @property {boolean} alerts.buys - Enable/disable alerts for buys.
+ * @property {boolean} alerts.mints - Enable/disable alerts for mints.
+ * @property {boolean} alerts.staking - Enable/disable alerts for staking.
+ * @property {boolean} alerts.governance - Enable/disable alerts for governance.
+ * @property {object} delivery - Settings for notification delivery methods.
+ * @property {boolean} delivery.email - Enable/disable email notifications.
+ * @property {boolean} delivery.telegram - Enable/disable Telegram notifications.
+ * @property {boolean} delivery.sms - Enable/disable SMS notifications.
+ * @property {object} timeSettings - Settings related to time and frequency.
+ * @property {string} timeSettings.timezone - User's preferred timezone.
+ * @property {string} timeSettings.frequency - How often alerts are delivered.
+ */
 interface NotificationPreferences {
   alerts: {
     buys: boolean;
@@ -51,23 +74,34 @@ interface NotificationPreferences {
   };
 }
 
+/**
+ * SettingsSidebar component provides a user interface for managing notification preferences.
+ * It allows users to configure alert types, delivery methods, and time settings.
+ * Preferences are fetched upon wallet connection and can be saved to the backend.
+ *
+ * @param {SettingsSidebarProps} props - The component's props.
+ * @returns {JSX.Element} The rendered settings sidebar.
+ */
 export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
-  const { publicKey } = useWallet();
-  const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
-  const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
+  const { publicKey } = useWallet(); // Hook to get the connected Solana wallet's public key
+  const { toast } = useToast(); // Hook for displaying toast notifications
+  const [isSaving, setIsSaving] = useState(false); // State to manage the saving-in-progress status
+  const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES); // State for user's notification preferences
 
-  // Fetch user preferences when wallet connects
+  /**
+   * Fetches user preferences from the API when the wallet connects.
+   * Defaults are applied for any missing preference fields.
+   */
   useEffect(() => {
     const fetchPreferences = async () => {
-      if (!publicKey) return;
+      if (!publicKey) return; // Do not fetch if wallet is not connected
 
       try {
-        // This would be replaced with a real API call to get user preferences
+        // In a real application, this would be a real API call to fetch user preferences
         const response = await fetch(`/api/followers/${publicKey.toString()}/preferences`);
         if (response.ok) {
           const data = await response.json();
-          // Ensure we have complete preferences with defaults for missing values
+          // Update preferences state, ensuring default values for any missing fields
           setPreferences({
             alerts: {
               buys: data.preferences?.alerts?.buys ?? true,
@@ -88,14 +122,18 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
         }
       } catch (error) {
         console.error("Error fetching preferences:", error);
-        // If there's an error, ensure we have default values
+        // Fallback to default preferences if fetching fails
         setPreferences(DEFAULT_PREFERENCES);
       }
     };
 
     fetchPreferences();
-  }, [publicKey]);
+  }, [publicKey]); // Re-run effect when publicKey changes (wallet connection/disconnection)
 
+  /**
+   * Handles saving the current notification preferences to the backend.
+   * Displays toast notifications for success or failure.
+   */
   const handleSavePreferences = async () => {
     if (!publicKey) {
       toast({
@@ -106,8 +144,9 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
       return;
     }
 
-    setIsSaving(true);
+    setIsSaving(true); // Set saving state to true
     try {
+      // Call the server action to update follower preferences
       const result = await updateFollowerPreferences(publicKey.toString(), preferences);
 
       if (result.success) {
@@ -127,10 +166,15 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
         variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      setIsSaving(false); // Reset saving state regardless of success or failure
     }
   };
 
+  /**
+   * Updates a specific alert preference.
+   * @param {keyof typeof preferences.alerts} key - The key of the alert preference to update.
+   * @param {boolean} value - The new boolean value for the preference.
+   */
   const updateAlertPreference = (key: keyof typeof preferences.alerts, value: boolean) => {
     setPreferences((prev) => ({
       ...prev,
@@ -141,6 +185,11 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
     }));
   };
 
+  /**
+   * Updates a specific delivery preference.
+   * @param {keyof typeof preferences.delivery} key - The key of the delivery preference to update.
+   * @param {boolean} value - The new boolean value for the preference.
+   */
   const updateDeliveryPreference = (key: keyof typeof preferences.delivery, value: boolean) => {
     setPreferences((prev) => ({
       ...prev,
@@ -151,6 +200,11 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
     }));
   };
 
+  /**
+   * Updates a specific time setting preference.
+   * @param {keyof typeof preferences.timeSettings} key - The key of the time setting preference to update.
+   * @param {string} value - The new string value for the preference.
+   */
   const updateTimeSettings = (key: keyof typeof preferences.timeSettings, value: string) => {
     setPreferences((prev) => ({
       ...prev,
@@ -161,7 +215,7 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
     }));
   };
 
-  // Ensure we have valid preferences with fallbacks
+  // Ensure we have valid preferences with fallbacks to default values
   const safePreferences = {
     alerts: preferences?.alerts || DEFAULT_PREFERENCES.alerts,
     delivery: preferences?.delivery || DEFAULT_PREFERENCES.delivery,
@@ -198,12 +252,17 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 Buys
               </Label>
             </div>
-            <Switch id="buys" checked={safePreferences.alerts.buys} onCheckedChange={(checked) => updateAlertPreference("buys", checked)} />
+            <Switch
+              id="buys"
+              checked={safePreferences.alerts.buys}
+              onCheckedChange={(checked) => updateAlertPreference("buys", checked)}
+            />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center">
+                {/* Custom SVG for Mints icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -212,7 +271,8 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-3 w-3 text-purple-600">
+                  className="h-3 w-3 text-purple-600"
+                >
                   <path d="M12 22V8"></path>
                   <path d="m5 12 7-4 7 4"></path>
                   <path d="M5 16l7-4 7 4"></path>
@@ -223,12 +283,17 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 Mints
               </Label>
             </div>
-            <Switch id="mints" checked={safePreferences.alerts.mints} onCheckedChange={(checked) => updateAlertPreference("mints", checked)} />
+            <Switch
+              id="mints"
+              checked={safePreferences.alerts.mints}
+              onCheckedChange={(checked) => updateAlertPreference("mints", checked)}
+            />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
+                {/* Custom SVG for Staking icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -237,7 +302,8 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-3 w-3 text-blue-600">
+                  className="h-3 w-3 text-blue-600"
+                >
                   <path d="M12 2v20"></path>
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
@@ -246,12 +312,17 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 Staking
               </Label>
             </div>
-            <Switch id="staking" checked={safePreferences.alerts.staking} onCheckedChange={(checked) => updateAlertPreference("staking", checked)} />
+            <Switch
+              id="staking"
+              checked={safePreferences.alerts.staking}
+              onCheckedChange={(checked) => updateAlertPreference("staking", checked)}
+            />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center">
+                {/* Custom SVG for Governance icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -260,7 +331,8 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-3 w-3 text-amber-600">
+                  className="h-3 w-3 text-amber-600"
+                >
                   <path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
                   <path d="m13 13 6 6"></path>
                 </svg>
@@ -269,7 +341,11 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 Governance
               </Label>
             </div>
-            <Switch id="governance" checked={safePreferences.alerts.governance} onCheckedChange={(checked) => updateAlertPreference("governance", checked)} />
+            <Switch
+              id="governance"
+              checked={safePreferences.alerts.governance}
+              onCheckedChange={(checked) => updateAlertPreference("governance", checked)}
+            />
           </div>
         </div>
       </div>
@@ -287,7 +363,11 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 Email
               </Label>
             </div>
-            <Switch id="email" checked={safePreferences.delivery.email} onCheckedChange={(checked) => updateDeliveryPreference("email", checked)} />
+            <Switch
+              id="email"
+              checked={safePreferences.delivery.email}
+              onCheckedChange={(checked) => updateDeliveryPreference("email", checked)}
+            />
           </div>
 
           <div className="flex items-center justify-between">
@@ -299,7 +379,11 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 Telegram
               </Label>
             </div>
-            <Switch id="telegram" checked={safePreferences.delivery.telegram} onCheckedChange={(checked) => updateDeliveryPreference("telegram", checked)} />
+            <Switch
+              id="telegram"
+              checked={safePreferences.delivery.telegram}
+              onCheckedChange={(checked) => updateDeliveryPreference("telegram", checked)}
+            />
           </div>
 
           <div className="flex items-center justify-between">
@@ -314,7 +398,12 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
                 <p className="text-xs text-gray-500">Coming soon</p>
               </div>
             </div>
-            <Switch id="sms" disabled checked={safePreferences.delivery.sms} onCheckedChange={(checked) => updateDeliveryPreference("sms", checked)} />
+            <Switch
+              id="sms"
+              disabled
+              checked={safePreferences.delivery.sms}
+              onCheckedChange={(checked) => updateDeliveryPreference("sms", checked)}
+            />
           </div>
         </div>
       </div>
@@ -336,7 +425,8 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
               id="timezone"
               className="text-xs bg-gray-100 border-0 rounded-lg px-2 py-1 text-gray-700"
               value={safePreferences.timeSettings.timezone}
-              onChange={(e) => updateTimeSettings("timezone", e.target.value)}>
+              onChange={(e) => updateTimeSettings("timezone", e.target.value)}
+            >
               <option>UTC (GMT+0)</option>
               <option>EST (GMT-5)</option>
               <option>PST (GMT-8)</option>
@@ -356,7 +446,8 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
               id="frequency"
               className="text-xs bg-gray-100 border-0 rounded-lg px-2 py-1 text-gray-700"
               value={safePreferences.timeSettings.frequency}
-              onChange={(e) => updateTimeSettings("frequency", e.target.value)}>
+              onChange={(e) => updateTimeSettings("frequency", e.target.value)}
+            >
               <option>Real-time</option>
               <option>Hourly digest</option>
               <option>Daily digest</option>
@@ -366,12 +457,25 @@ export function SettingsSidebar({ onClose }: SettingsSidebarProps) {
       </div>
 
       <div className="mt-auto p-4 border-t border-gray-200">
-        <Button className="w-full flex items-center justify-center gap-2" onClick={handleSavePreferences} disabled={isSaving || !publicKey}>
+        <Button
+          className="w-full flex items-center justify-center gap-2"
+          onClick={handleSavePreferences}
+          disabled={isSaving || !publicKey}
+        >
           {isSaving ? (
             <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Saving...
             </>

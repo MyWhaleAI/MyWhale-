@@ -1,7 +1,7 @@
-import { ArrowUpDown, ExternalLink, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowUpDown, ExternalLink, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// Mock data for whale tracking
+// Mock data for whale tracking table.
 const whales = [
   {
     id: 1,
@@ -84,39 +84,52 @@ const whales = [
     rewardsApr: "46.63%",
     status: "positive",
   },
-]
+];
 
+/**
+ * WhaleTable component displays a tabular overview of tracked whale assets and their performance.
+ * It includes columns for Protocol, Asset, ETH Value, LSD Balance, Rewards APR, and actions.
+ * Data is currently mocked.
+ *
+ * @returns {JSX.Element} The rendered table of whale tracking data.
+ */
 export function WhaleTable() {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-200">
+            {/* Table Header: Protocol */}
             <th className="text-left p-5 text-teal-600 font-medium text-base">
               <div className="flex items-center gap-1 cursor-pointer hover:text-teal-700 transition-colors">
                 Protocol <ArrowUpDown className="h-4 w-4 ml-1" />
               </div>
             </th>
+            {/* Table Header: Asset */}
             <th className="text-left p-5 text-teal-600 font-medium text-base">
               <div className="flex items-center gap-1 cursor-pointer hover:text-teal-700 transition-colors">
                 Asset <ArrowUpDown className="h-4 w-4 ml-1" />
               </div>
             </th>
+            {/* Table Header: ETH Value */}
             <th className="text-left p-5 text-teal-600 font-medium text-base">
               <div className="flex items-center gap-1 cursor-pointer hover:text-teal-700 transition-colors">
                 ETH Value <ArrowUpDown className="h-4 w-4 ml-1" />
               </div>
             </th>
+            {/* Table Header: LSD Balance */}
             <th className="text-left p-5 text-teal-600 font-medium text-base">
               <div className="flex items-center gap-1 cursor-pointer hover:text-teal-700 transition-colors">
                 LSD Balance <ArrowUpDown className="h-4 w-4 ml-1" />
               </div>
             </th>
+            {/* Table Header: Rewards APR */}
             <th className="text-left p-5 text-teal-600 font-medium text-base">
               <div className="flex items-center gap-1 cursor-pointer hover:text-teal-700 transition-colors">
                 Rewards APR <ArrowUpDown className="h-4 w-4 ml-1" />
               </div>
             </th>
+            {/* Table Header: Action */}
             <th className="text-right p-5 text-teal-600 font-medium text-base">
               <div className="flex items-center justify-end gap-1">Action</div>
             </th>
@@ -132,7 +145,7 @@ export function WhaleTable() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center">
                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-sm font-bold text-gray-800">
-                      E
+                      E {/* Placeholder for protocol icon */}
                     </div>
                   </div>
                   <span className="text-gray-800 font-medium text-base">{whale.protocol}</span>
@@ -141,7 +154,7 @@ export function WhaleTable() {
               <td className="p-5">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center text-sm font-bold text-white">
-                    {whale.asset.charAt(0)}
+                    {whale.asset.charAt(0)} {/* First letter of asset as icon */}
                   </div>
                   <span className="text-gray-800 font-medium text-base">{whale.asset}</span>
                 </div>
@@ -159,6 +172,7 @@ export function WhaleTable() {
               </td>
               <td className="p-5 text-right">
                 <div className="flex items-center justify-end gap-2">
+                  {/* Star/Follow Button */}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -166,6 +180,7 @@ export function WhaleTable() {
                   >
                     <Star className="h-5 w-5 text-gray-400 hover:text-yellow-500" />
                   </Button>
+                  {/* External Link Button */}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -173,6 +188,7 @@ export function WhaleTable() {
                   >
                     <ExternalLink className="h-5 w-5 text-gray-400 hover:text-teal-500" />
                   </Button>
+                  {/* Manage Button */}
                   <Button
                     variant="outline"
                     className="border-gray-200 hover:bg-gray-100 text-gray-700 rounded-2xl transition-all duration-200 shadow-sm ml-2 px-5 py-2.5 text-base"
@@ -186,5 +202,5 @@ export function WhaleTable() {
         </tbody>
       </table>
     </div>
-  )
+  );
 }

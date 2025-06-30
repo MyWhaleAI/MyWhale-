@@ -1,62 +1,118 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Search, Filter, ArrowUpDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { WhaleCard } from "./whale-card"
-import { WalletButton } from "../wallet/wallet-button"
+import { useState } from "react";
+import Link from "next/link";
+import { Search, Filter, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WhaleCard } from "./whale-card"; // Assuming whale-card is in the same directory or correctly imported
+import { WalletButton } from "../wallet/wallet-button"; // Assuming WalletButton path
 
-export function WhalesClient({ initialWhales = [] }) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState("roi")
-  const [whales] = useState(initialWhales)
+/**
+ * Interface for a single whale object.
+ * @interface Whale
+ * @property {number} id - Unique identifier for the whale.
+ * @property {string} [name] - The name of the whale.
+ * @property {string} [description] - A brief description of the whale.
+ * @property {string[]} [tags] - An array of tags associated with the whale (e.g., "DeFi", "NFT").
+ * @property {string} [roi] - Return on Investment (e.g., "+15%").
+ * @property {string} [followers] - Number of followers (e.g., "1.2k").
+ * @property {string} [volume] - Trading volume (e.g., "$2.4M").
+ * @property {string} [avatarUrl] - URL to the whale's avatar image.
+ * @property {string} [avatarColor] - Background color for the avatar.
+ * @property {string} [display_name] - Alternative display name.
+ * @property {string} [bio] - Alternative biography.
+ * @property {string} [followers_count] - Alternative followers count.
+ * @property {string} [walletAddress] - The wallet address of the whale.
+ * @property {string} [wallet_address] - Alternative wallet address.
+ */
+interface Whale {
+  id: number;
+  name?: string;
+  description?: string;
+  tags?: string[];
+  roi?: string;
+  followers?: string;
+  volume?: string;
+  avatarUrl?: string;
+  avatarColor?: string;
+  display_name?: string;
+  bio?: string;
+  followers_count?: string;
+  walletAddress?: string;
+  wallet_address?: string;
+}
 
-  // Filter whales based on search query
+/**
+ * Props for the WhalesClient component.
+ * @interface WhalesClientProps
+ * @property {Whale[]} [initialWhales=[]] - An array of whale objects to display initially.
+ */
+interface WhalesClientProps {
+  initialWhales?: Whale[];
+}
+
+/**
+ * WhalesClient component provides the main client-side logic and UI for displaying and
+ * managing a list of whale profiles. It includes features for searching, filtering,
+ * and sorting whales.
+ *
+ * @param {WhalesClientProps} { initialWhales } - The props object containing initial whale data.
+ * @returns {JSX.Element} The rendered whales client page.
+ */
+export function WhalesClient({ initialWhales = [] }: WhalesClientProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("roi"); // Default sort by ROI
+  const [whales] = useState(initialWhales); // Use initial whales data
+
+  // Filter whales based on search query across name, description, and tags
   const filteredWhales = whales.filter(
     (whale) =>
       whale.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       whale.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       whale.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  );
 
-  // Sort whales based on selected criteria
+  // Sort whales based on selected criteria (ROI, Followers, or Volume)
   const sortedWhales = [...filteredWhales].sort((a, b) => {
     if (sortBy === "roi") {
+      // Convert ROI strings like "+15%" to numbers for comparison
       return (
         Number.parseFloat((b.roi || "+0%").replace("+", "").replace("%", "")) -
         Number.parseFloat((a.roi || "+0%").replace("+", "").replace("%", ""))
-      )
+      );
     } else if (sortBy === "followers") {
+      // Convert follower strings like "1.2k" to numbers for comparison
       return (
         Number.parseFloat((b.followers || "0").replace("k", "000")) -
         Number.parseFloat((a.followers || "0").replace("k", "000"))
-      )
+      );
     } else if (sortBy === "volume") {
+      // Convert volume strings like "$2.4M" to numbers for comparison
       return (
         Number.parseFloat((b.volume || "$0").replace("$", "").replace("M", "000000")) -
         Number.parseFloat((a.volume || "$0").replace("$", "").replace("M", "000000"))
-      )
+      );
     }
-    return 0
-  })
+    return 0; // No sorting if criteria is not recognized
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header Section */}
       <header className="border-b border-gray-200 py-3 px-4 sm:py-4 sm:px-6 lg:px-8 bg-white sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-teal-400 to-blue-500 flex items-center justify-center">
-                🐋
+                🐋 {/* Whale emoji as logo */}
               </div>
               <span className="text-lg font-bold">MyWhale</span>
             </Link>
           </div>
 
+          {/* Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/whales" className="text-teal-600 hover:text-teal-700 text-sm font-medium">
               Whales
@@ -72,6 +128,7 @@ export function WhalesClient({ initialWhales = [] }) {
             </Link>
           </nav>
 
+          {/* Action Buttons (Mobile Search & Wallet) */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Button
               variant="ghost"
@@ -80,19 +137,21 @@ export function WhalesClient({ initialWhales = [] }) {
             >
               <Search className="h-4 w-4 text-gray-700" />
             </Button>
-            <WalletButton />
+            <WalletButton /> {/* Wallet connection button */}
           </div>
         </div>
       </header>
 
+      {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Top Solana Whales</h1>
           <p className="text-gray-600">Follow the most successful traders on Solana and learn from their strategies.</p>
         </div>
 
-        {/* Search and Filter */}
+        {/* Search and Filter/Sort Controls */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          {/* Search Input */}
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -102,6 +161,7 @@ export function WhalesClient({ initialWhales = [] }) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          {/* Filter and Sort Buttons */}
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -110,7 +170,8 @@ export function WhalesClient({ initialWhales = [] }) {
               <Filter className="h-4 w-4" />
               Filter
             </Button>
-            <div className="relative">
+            {/* Sort By Dropdown (visually handled by group-hover for simplicity) */}
+            <div className="relative group"> {/* Added 'group' class */}
               <Button
                 variant="outline"
                 className="border-gray-200 hover:bg-gray-100 text-gray-700 flex items-center gap-2 rounded-xl"
@@ -142,7 +203,7 @@ export function WhalesClient({ initialWhales = [] }) {
           </div>
         </div>
 
-        {/* Tabs for different categories */}
+        {/* Tabs for Whale Categories */}
         <Tabs defaultValue="all" className="mb-8">
           <TabsList className="bg-gray-100 p-1 rounded-xl">
             <TabsTrigger value="all" className="rounded-lg">
@@ -162,6 +223,7 @@ export function WhalesClient({ initialWhales = [] }) {
             </TabsTrigger>
           </TabsList>
 
+          {/* Tab Content: All Whales */}
           <TabsContent value="all" className="mt-6">
             {sortedWhales.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -176,6 +238,7 @@ export function WhalesClient({ initialWhales = [] }) {
             )}
           </TabsContent>
 
+          {/* Tab Content: DeFi Whales */}
           <TabsContent value="defi" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedWhales
@@ -186,6 +249,7 @@ export function WhalesClient({ initialWhales = [] }) {
             </div>
           </TabsContent>
 
+          {/* Tab Content: NFT Whales */}
           <TabsContent value="nft" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedWhales
@@ -196,6 +260,7 @@ export function WhalesClient({ initialWhales = [] }) {
             </div>
           </TabsContent>
 
+          {/* Tab Content: Staking Whales */}
           <TabsContent value="staking" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedWhales
@@ -206,6 +271,7 @@ export function WhalesClient({ initialWhales = [] }) {
             </div>
           </TabsContent>
 
+          {/* Tab Content: Meme Coins Whales */}
           <TabsContent value="meme" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedWhales
@@ -218,5 +284,5 @@ export function WhalesClient({ initialWhales = [] }) {
         </Tabs>
       </main>
     </div>
-  )
+  );
 }

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp } from "lucide-react";
-import { getWhaleById } from "@/actions/whale-actions";
+import { getWhaleById } from "@/app/actions/whale-actions";
 import { useFollow } from "@/hooks/use-follow";
 
 // Mock data for similar whales
@@ -40,16 +40,30 @@ const mockSimilarWhales = [
   },
 ];
 
+/**
+ * Props for the SimilarWhales component.
+ * @interface SimilarWhalesProps
+ * @property {any} [currentWhale] - The current whale object, if available.
+ * @property {string} [currentWhaleId] - The ID of the current whale, used to fetch data if `currentWhale` is not provided.
+ */
 interface SimilarWhalesProps {
   currentWhale?: any;
   currentWhaleId?: string;
 }
 
+/**
+ * SimilarWhales component displays a list of whales that share common strategies
+ * or characteristics with a currently viewed whale. It also shows the common strategies
+ * of the `currentWhale`.
+ *
+ * @param {SimilarWhalesProps} props - The component's props.
+ * @returns {JSX.Element} The rendered similar whales card, or a loading/fallback state.
+ */
 export function SimilarWhales({ currentWhale, currentWhaleId }: SimilarWhalesProps) {
   const [whale, setWhale] = useState<any>(currentWhale);
   const [loading, setLoading] = useState(!currentWhale && !!currentWhaleId);
 
-  // Fetch whale data if we only have the ID
+  // Fetch whale data if we only have the ID and not the full whale object
   useEffect(() => {
     if (!currentWhale && currentWhaleId) {
       const fetchWhale = async () => {
@@ -70,7 +84,7 @@ export function SimilarWhales({ currentWhale, currentWhaleId }: SimilarWhalesPro
     }
   }, [currentWhale, currentWhaleId]);
 
-  // If we're loading or don't have whale data, show a loading state
+  // If we're loading or don't have whale data, show a loading state or fallback message
   if (loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -106,7 +120,7 @@ export function SimilarWhales({ currentWhale, currentWhaleId }: SimilarWhalesPro
     );
   }
 
-  // If we don't have whale data and we're not loading, show a fallback
+  // If no whale data is available after loading, display a message
   if (!whale && !loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -147,22 +161,26 @@ export function SimilarWhales({ currentWhale, currentWhaleId }: SimilarWhalesPro
                         key === "defi"
                           ? "bg-blue-50 text-blue-700 border-blue-200"
                           : key === "nft"
-                          ? "bg-purple-50 text-purple-700 border-purple-200"
-                          : key === "staking"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : key === "dao"
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : key === "meme"
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : key === "yield"
-                          ? "bg-teal-50 text-teal-700 border-teal-200"
-                          : "bg-gray-50 text-gray-700 border-gray-200"
-                      }>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                            ? "bg-purple-50 text-purple-700 border-purple-200"
+                            : key === "staking"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : key === "dao"
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
+                                : key === "meme"
+                                  ? "bg-red-50 text-red-700 border-red-200"
+                                  : key === "yield"
+                                    ? "bg-teal-50 text-teal-700 border-teal-200"
+                                    : "bg-gray-50 text-gray-700 border-gray-200"
+                      }
+                    >
+                      {key.charAt(0).toUpperCase() + key.slice(1)} {/* Capitalize first letter */}
                     </Badge>
-                  )
+                  ),
               )}
-            {(!whale || !whale.strategies || Object.keys(whale.strategies).length === 0) && <div className="text-sm text-gray-500">No strategies found</div>}
+            {/* Display message if no strategies are found */}
+            {(!whale || !whale.strategies || Object.keys(whale.strategies).length === 0) && (
+              <div className="text-sm text-gray-500">No strategies found</div>
+            )}
           </div>
         </div>
       </CardContent>
@@ -170,16 +188,30 @@ export function SimilarWhales({ currentWhale, currentWhaleId }: SimilarWhalesPro
   );
 }
 
-// Separate component for each similar whale item
-function SimilarWhaleItem({ whale }) {
+/**
+ * SimilarWhaleItem component displays a single item within the SimilarWhales list.
+ * It shows the whale's display name, ROI, and a follow button.
+ *
+ * @param {object} { whale } - The whale data for this item.
+ * @returns {JSX.Element} The rendered similar whale item.
+ */
+function SimilarWhaleItem({ whale }: { whale: any }) {
+  // Use the useFollow hook to manage the follow state for each similar whale
   const { isFollowing, isLoading, toggleFollow } = useFollow(whale.walletAddress);
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-lg ${whale.avatarColor} flex items-center justify-center text-sm font-bold text-white`}>{whale.initial}</div>
+        <div
+          className={`w-10 h-10 rounded-lg ${whale.avatarColor} flex items-center justify-center text-sm font-bold text-white`}
+        >
+          {whale.initial} {/* Display initial from whale data */}
+        </div>
         <div>
-          <Link href={`/whale/${whale.walletAddress}`} className="font-medium text-gray-800 hover:text-teal-600 transition-colors">
+          <Link
+            href={`/whale/${whale.walletAddress}`}
+            className="font-medium text-gray-800 hover:text-teal-600 transition-colors"
+          >
             {whale.displayName}
           </Link>
           <div className="flex items-center gap-1.5 text-emerald-600 text-xs">
@@ -191,9 +223,14 @@ function SimilarWhaleItem({ whale }) {
       <Button
         variant="outline"
         size="sm"
-        className={`h-8 text-xs ${isFollowing ? "bg-gray-100 hover:bg-gray-200 text-gray-800" : "border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100"}`}
+        className={`h-8 text-xs ${
+          isFollowing
+            ? "bg-gray-100 hover:bg-gray-200 text-gray-800"
+            : "border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100"
+        }`}
         onClick={toggleFollow}
-        disabled={isLoading}>
+        disabled={isLoading}
+      >
         {isLoading ? "..." : isFollowing ? "Following" : "Follow"}
       </Button>
     </div>
